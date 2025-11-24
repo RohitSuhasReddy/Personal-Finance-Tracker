@@ -31,5 +31,10 @@ typedef struct {
     double maxAmount;
 } Budget;
 
-#endif
+typedef struct {
+    int userId;
+    char username[30];
+    char password[30];
+} User;
 
+#endif

@@ -36,5 +36,10 @@ int isOverBudget(char* category, double currentSpending) {
 }
 
 // Getters for UI
-Budget* getAllBudgets() { return budgets; }
-int getBudgetCount() { return count; }
+Budget* getAllBudgets(){
+    return budgets;
+}
+
+int getBudgetCount() {
+    return count;
+}
