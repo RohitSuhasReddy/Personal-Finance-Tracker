@@ -1,10 +1,13 @@
+/* limits.h */
 #ifndef LIMITS_H
 #define LIMITS_H
 
-typedef struct {
-    char category[30]; // e.g., "Food"
-    double maxAmount;  // e.g., 500.00
-} Budget;
+#include "Finance.h" // <--- This imports the Budget struct from Finance.h
+
+// DO NOT define 'typedef struct { ... } Budget' here again.
+// It is already inside Finance.h
+
+// --- Function Prototypes ---
 
 // 1. Create or Update a limit
 void setBudget(char* category, double amount);

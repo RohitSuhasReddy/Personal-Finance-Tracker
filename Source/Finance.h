@@ -1,38 +1,35 @@
+/* Finance.h */
 #ifndef FINANCE_H
 #define FINANCE_H
 
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-typedef struct Transactions
-{
+// 1. Define the Date struct
+// We need this so Utils.c can validate days/months
+typedef struct {
+    int day;
+    int month;
+    int year;
+} Date;
+
+// 2. Define the Transaction struct
+// It MUST be named "Transaction" (Big T) to match Reports.c
+typedef struct {
     int id;
-    char type[15]; //income or expense
-    char des[20]; // 2-3 words description
-    float amt;
-    char category[15]; //food,education,entertainment...
-    char date[11]; //  (dd/mm/yyyy)
-    float extraCharge; //extra charges if any
+    double amount;      // Renamed from 'amt' to match logic
+    char type[15];      // "INCOME" or "EXPENSE"
+    char category[20];  // "Food", etc.
+    char des[50];       // Description
+    Date date;          // Uses the struct above, NOT a char array
+} Transaction;
 
-    struct Transactins *next;
-    
-}transaction;
 
-typedef struct summary
-{
-    float total_income;
-    float total_expense;
-    float net_balance;
-    float m_inclome; //montl=hly income
-    float m_expense;  // monthly expense
-}summary;
-
-typedef struct Limits
-{
-    float m_limit;
-    float target;
-    float current;
-}Limits;
-
+// 3. Define Limits (If you are using the Limits module)
+typedef struct {
+    char category[30];
+    double maxAmount;
+} Budget;
 
 #endif
+
