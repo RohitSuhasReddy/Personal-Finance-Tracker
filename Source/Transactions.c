@@ -101,5 +101,5 @@ void transactionToString(Transaction t, char* buffer) {
     // Order: ID, Amount, Type, Category, Day, Month, Year
     sprintf(buffer, "%d,%.2f,%s,%s,%d,%d,%d",
             t.id, t.amount, t.type, t.category, 
-            t.date.day, t.date.month, t.date.year);
+            t.date.day, t.date.month, t.date.year,t.des);
 }

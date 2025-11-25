@@ -34,22 +34,42 @@ void saveAllData() {
 }
 
 void loadAllData() {
-    FILE *file = fopen(fileName, "r"); // "r" is read mode
-    if (file == NULL) return; // File doesn't exist yet (first run)
+    FILE *file = fopen(fileName, "r");
+    if (!file) return;
 
     Transaction t;
-    // We scan the CSV format: ID,Amount,Type,Category,Day,Month,Year
-    // Note: This needs to match the format in transactionToString
-    while (fscanf(file, "%d,%lf,%[^,],%[^,],%d,%d,%d", 
-                  &t.id, &t.amount, t.type, t.category, 
-                  &t.date.day, &t.date.month, &t.date.year) != EOF) {
-        
-        // Add description (since it was the last item, we handle it carefully)
-        // Note: For simple CSV, description handling can be tricky if it has commas.
-        // For now, let's keep it simple or set a default.
-        strcpy(t.des, "Loaded"); 
-        
-        addTransaction(t);
+
+    while (1) {
+        // Try reading 8 fields first (NEW FORMAT)
+        int fields = fscanf(file,
+            "%d,%lf,%[^,],%[^,],%d,%d,%d,%[^\n]",
+            &t.id,
+            &t.amount,
+            t.type,
+            t.category,
+            &t.date.day,
+            &t.date.month,
+            &t.date.year,
+            t.des
+        );
+
+        if (fields == 8) {
+            addTransaction(t);
+        }
+        else if (fields == 7) {
+            // OLD FORMAT → Add empty description
+            strcpy(t.des, "");
+            addTransaction(t);
+
+            // eat newline
+            int c;
+            while ((c = fgetc(file)) != '\n' && c != EOF);
+        }
+        else {
+            break;
+        }
     }
+
     fclose(file);
 }
+

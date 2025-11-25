@@ -269,9 +269,9 @@ void searchTransactions() {
 
     printf("Search by:\n");
     printf("1. Category\n");
-    printf("2. Date\n");
-    printf("3. Description Keyword\n");
-    printf("4. Amount Range\n");
+    printf("2. Date (DD MM YYYY)\n");
+    printf("3. Month (MM)\n");
+    printf("4. Year (YYYY)\n");
     printf("Enter choice: ");
 
     int ch;
@@ -279,17 +279,47 @@ void searchTransactions() {
 
     Transaction* list = getAllTransactions();
     int count = getTransactionCount();
-
     int found = 0;
 
+    // ---------------------------
+    // 1. SEARCH BY CATEGORY
+    // ---------------------------
     if (ch == 1) {
-        char cat[30];
-        printf("Enter category: ");
-        scanf("%s", cat);
+        printHeader("SEARCH BY CATEGORY");
+
+        printf("Select Category:\n");
+
+        int idx = 1;
+
+        printf("\n" COLOR_GREEN "Income Categories:" COLOR_RESET "\n");
+        for (int i = 0; i < INC_CAT_COUNT; i++)
+            printf("%d. %s\n", idx++, INCOME_CATEGORIES[i]);
+
+        printf("\n" COLOR_RED "Expense Categories:" COLOR_RESET "\n");
+        for (int i = 0; i < EXP_CAT_COUNT; i++)
+            printf("%d. %s\n", idx++, EXPENSE_CATEGORIES[i]);
+
+        int totalOptions = INC_CAT_COUNT + EXP_CAT_COUNT;
+
+        printf("\nEnter choice: ");
+        int opt;
+        scanf("%d", &opt);
+
+        char selected[30];
+
+        if (opt <= 0 || opt > totalOptions) {
+            printf(COLOR_RED "Invalid option.\n" COLOR_RESET);
+            return;
+        }
+
+        if (opt <= INC_CAT_COUNT)
+            strcpy(selected, INCOME_CATEGORIES[opt - 1]);
+        else
+            strcpy(selected, EXPENSE_CATEGORIES[opt - INC_CAT_COUNT - 1]);
 
         for (int i = 0; i < count; i++) {
-            if (strcmp(list[i].category, cat) == 0) {
-                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+            if (strcmp(list[i].category, selected) == 0) {
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
                        list[i].id,
                        list[i].date.day, list[i].date.month, list[i].date.year,
                        list[i].category,
@@ -299,9 +329,13 @@ void searchTransactions() {
             }
         }
     }
+
+    // ---------------------------
+    // 2. SEARCH BY FULL DATE (DD MM YYYY)
+    // ---------------------------
     else if (ch == 2) {
         int d, m, y;
-        printf("Enter Date (DD MM YYYY): ");
+        printf("Enter date (DD MM YYYY): ");
         scanf("%d %d %d", &d, &m, &y);
 
         for (int i = 0; i < count; i++) {
@@ -309,7 +343,7 @@ void searchTransactions() {
                 list[i].date.month == m &&
                 list[i].date.year == y) {
 
-                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
                        list[i].id,
                        list[i].date.day, list[i].date.month, list[i].date.year,
                        list[i].category,
@@ -319,14 +353,48 @@ void searchTransactions() {
             }
         }
     }
+
+    // ---------------------------
+    // 3. SEARCH BY MONTH (MM)
+    // ---------------------------
     else if (ch == 3) {
-        char key[50];
-        printf("Enter keyword: ");
-        scanf(" %[^\n]s", key);
+    int m;
+    printf("Enter month (1–12): ");
+    scanf("%d", &m);
+
+    if (m < 1 || m > 12) {
+        printf(COLOR_RED "Invalid month.\n" COLOR_RESET);
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        if (list[i].date.month == m) {
+
+            printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
+                   list[i].id,
+                   list[i].date.day, list[i].date.month, list[i].date.year,
+                   list[i].category,
+                   list[i].amount,
+                   list[i].des);
+
+            found = 1;
+        }
+    }
+}
+
+
+    // ---------------------------
+    // 4. SEARCH BY YEAR (YYYY)
+    // ---------------------------
+    else if (ch == 4) {
+        int y;
+        printf("Enter year: ");
+        scanf("%d", &y);
 
         for (int i = 0; i < count; i++) {
-            if (strstr(list[i].des, key)) {
-                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+            if (list[i].date.year == y) {
+
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
                        list[i].id,
                        list[i].date.day, list[i].date.month, list[i].date.year,
                        list[i].category,
@@ -336,24 +404,10 @@ void searchTransactions() {
             }
         }
     }
-    else if (ch == 4) {
-        double min, max;
-        printf("Enter min amount: ");
-        scanf("%lf", &min);
-        printf("Enter max amount: ");
-        scanf("%lf", &max);
 
-        for (int i = 0; i < count; i++) {
-            if (list[i].amount >= min && list[i].amount <= max) {
-                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
-                       list[i].id,
-                       list[i].date.day, list[i].date.month, list[i].date.year,
-                       list[i].category,
-                       list[i].amount,
-                       list[i].des);
-                found = 1;
-            }
-        }
+    else {
+        printf(COLOR_RED "Invalid choice.\n" COLOR_RESET);
+        return;
     }
 
     if (!found)
