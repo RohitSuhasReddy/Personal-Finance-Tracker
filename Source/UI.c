@@ -13,6 +13,7 @@
 typedef struct {
     char category[30];
     double amount;
+    int isIncome;
 } CategoryTotal;
 
 int compareByAmountDesc(const void* a, const void* b) {
@@ -186,28 +187,44 @@ void showSummary() {
         printf("Net Balance:    " COLOR_RED   "%.2f\n" COLOR_RESET, balance);
 }
 
+/* REPLACE inside UI.c */
+
+// Define struct for this report (Keep this at the top of the function or file)
+// Note: If you already have this struct definition at the top of UI.c, you don't need to repeat it.
+/*
+typedef struct {
+    char category[30];
+    double amount;
+    int isIncome; // 1 = Green, 0 = Red
+} CategoryTotal;
+*/
+
+
+
 void showCategoryDistribution() {
     printHeader("CATEGORY-WISE DISTRIBUTION");
 
     CategoryTotal arr[50];
     int n = 0;
 
-    // Collect EXPENSE totals
+    // 1. Collect EXPENSE Totals
     for (int i = 0; i < EXP_CAT_COUNT; i++) {
-        double spent = getCategoryTotal((char*)EXPENSE_CATEGORIES[i]);
-        if (spent > 0) {
+        double val = getCategoryTotal((char*)EXPENSE_CATEGORIES[i]);
+        if (val > 0) {
             strcpy(arr[n].category, EXPENSE_CATEGORIES[i]);
-            arr[n].amount = spent;
+            arr[n].amount = val;
+            arr[n].isIncome = 0; // Mark for RED color
             n++;
         }
     }
 
-    // Collect INCOME totals
+    // 2. Collect INCOME Totals
     for (int i = 0; i < INC_CAT_COUNT; i++) {
-        double earned = getIncomeCategoryTotal((char*)INCOME_CATEGORIES[i]);
-        if (earned > 0) {
+        double val = getCategoryTotal((char*)INCOME_CATEGORIES[i]);
+        if (val > 0) {
             strcpy(arr[n].category, INCOME_CATEGORIES[i]);
-            arr[n].amount = earned;
+            arr[n].amount = val;
+            arr[n].isIncome = 1; // Mark for GREEN color
             n++;
         }
     }
@@ -217,49 +234,57 @@ void showCategoryDistribution() {
         return;
     }
 
-    // Sorting Option
-    printf("\nSort by:\n1. Highest Amount\n2. Alphabetical\nEnter choice: ");
-    int ch;
-    scanf("%d", &ch);
+    // 3. AUTO-SORT (Highest Amount First)
+    qsort(arr, n, sizeof(CategoryTotal), compareByAmountDesc);
 
-    if (ch == 1) qsort(arr, n, sizeof(CategoryTotal), compareByAmountDesc);
-    else if (ch == 2) {
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = i + 1; j < n; j++) {
-                if (strcmp(arr[i].category, arr[j].category) > 0) {
-                    CategoryTotal temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
-                }
-            }
-        }
-    }
-
-    // Display Table
+    // 4. Print Table
     printf("\n" COLOR_CYAN "%-20s | %-10s\n" COLOR_RESET, "Category", "Amount");
     printf("----------------------------------------\n");
 
     for (int i = 0; i < n; i++) {
-        char* color = strstr(arr[i].category, "Income") ? COLOR_GREEN : COLOR_RED;
+        // Use the isIncome flag to decide color
+        char* color = (arr[i].isIncome == 1) ? COLOR_GREEN : COLOR_RED;
+        
         printf("%-20s | %s%.2f%s\n",
                arr[i].category, color, arr[i].amount, COLOR_RESET);
     }
-
     printf("----------------------------------------\n");
 }
 
 
 
-void showBudgetMenu() {
-    printHeader("MANAGE BUDGETS");
-    char category[30];
-    double limit;
 
-    printf("Enter Category to limit (Food/Shopping/): ");
-    scanf("%s", category);
-    printf("Enter Max Limit Amount: ");
+void showBudgetMenu() {
+    printHeader("SET BUDGET LIMITS");
+    
+    // --- 1. Display Categories (Numbered List) ---
+    printf("\nSelect Expense Category to Limit:\n");
+    for(int i = 0; i < EXP_CAT_COUNT; i++) {
+        printf("%d. %s\n", i+1, EXPENSE_CATEGORIES[i]);
+    }
+
+    // --- 2. Get User Selection ---
+    int opt;
+    printf("Enter option: ");
+    scanf("%d", &opt);
+
+    char category[30];
+
+    // --- 3. Validate & Map Selection to String ---
+    if(opt < 1 || opt > EXP_CAT_COUNT) {
+        printf(COLOR_RED "Invalid option. Defaulting to 'Other Expenses'.\n" COLOR_RESET);
+        strcpy(category, "Other Expenses");
+    } else {
+        // Automatically picks the correct name (e.g., "Food") based on the number
+        strcpy(category, EXPENSE_CATEGORIES[opt - 1]);
+    }
+
+    // --- 4. Get Limit Amount ---
+    double limit;
+    printf("Enter Max Limit Amount for '%s': ", category);
     scanf("%lf", &limit);
 
+    // --- 5. Save to Backend ---
     setBudget(category, limit);
     printf(COLOR_GREEN "\n[SUCCESS] Budget set for %s at %.2f\n" COLOR_RESET, category, limit);
 }
@@ -429,6 +454,7 @@ void runMainMenu() {
         printf("5. Set Budget Limit\n");
         printf("6. Search Transactions\n");
         printf("7. Exit\n");
+        printf("Enter choice: ");
 
 
         

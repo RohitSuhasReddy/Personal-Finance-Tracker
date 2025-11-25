@@ -12,40 +12,25 @@
 
 // --- FUNCTION 1: Calculate Category Total ---
 
+/* REPLACE inside Reports.c */
+
 double getCategoryTotal(char* category) {
-    // FIX 1: Get access to the private array from transactions.c
     Transaction* list = getAllTransactions();
     int count = getTransactionCount();
     
     double sum = 0.0;
 
     for (int i = 0; i < count; i++) {
-        // Only sum up EXPENSES
-        if (strcmp(list[i].type, "EXPENSE") == 0) {
-            // Check if the category matches (e.g., "Food" == "Food")
-            if (strcmp(list[i].category, category) == 0) {
-                sum += list[i].amount;
-            }
+        // REMOVED THE CHECK for "EXPENSE". 
+        // Now it sums up anything that matches the category name.
+        if (strcmp(list[i].category, category) == 0) {
+            sum += list[i].amount;
         }
     }
     return sum;
 }
 
-double getIncomeCategoryTotal(char* category) {
-    Transaction* list = getAllTransactions();
-    int count = getTransactionCount();
 
-    double sum = 0.0;
-
-    for (int i = 0; i < count; i++) {
-        if (strcmp(list[i].type, "INCOME") == 0) {
-            if (strcmp(list[i].category, category) == 0) {
-                sum += list[i].amount;
-            }
-        }
-    }
-    return sum;
-}
 
 
 // --- FUNCTION 2: Sort by Date (Bubble Sort) ---

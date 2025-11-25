@@ -99,7 +99,7 @@ double getCurrentBalance() {
 void transactionToString(Transaction t, char* buffer) {
     // Formats data as CSV so Person 2 can write it to a text file easily
     // Order: ID, Amount, Type, Category, Day, Month, Year
-    sprintf(buffer, "%d,%.2f,%s,%s,%d,%d,%d",
+    sprintf(buffer, "%d,%.2f,%s,%s,%d,%d,%d,%s",
             t.id, t.amount, t.type, t.category, 
             t.date.day, t.date.month, t.date.year,t.des);
 }
