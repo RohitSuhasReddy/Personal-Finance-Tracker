@@ -7,6 +7,20 @@
 #include "Reports.h"
 #include "Utils.h"
 
+const char* FIXED_CATEGORIES[] = {
+    "Food",
+    "Transport",
+    "Health",
+    "Education",
+    "Bills",
+    "Shopping",
+    "Entertainment",
+    "Salary",
+    "Gift",
+    "Other"
+};
+int CATEGORY_COUNT = 8;
+
 static void printMainMenu() {
     printf("\n================= MAIN MENU =================\n");
     printf("1. Add Transaction\n");
@@ -15,6 +29,7 @@ static void printMainMenu() {
     printf("4. View Summary (Income/Expense/Balance)\n");
     printf("5. Manage Budgets\n");
     printf("6. Reports\n");
+    printf("7. Category Distribution\n");
     printf("0. Logout / Exit\n");
     printf("=============================================\n");
     printf("Enter choice: ");
@@ -69,8 +84,22 @@ void addTransactionUI() {
     printf("Enter type (INCOME/EXPENSE): ");
     scanf("%14s", t.type);
 
-    printf("Enter category (e.g. Food, Rent): ");
-    scanf("%19s", t.category);
+    printf("\nSelect Category:\n");
+    for(int i = 0; i < CATEGORY_COUNT; i++) {
+        printf("%d. %s\n", i+1, FIXED_CATEGORIES[i]);
+    }
+    printf("Enter option: ");
+    int opt;
+    scanf("%d", &opt);
+
+    // Validate category
+    if (opt < 1 || opt > CATEGORY_COUNT) {
+        printf("Invalid category. Setting to Other.\n");
+        strcpy(t.category, "Other");
+    } else {
+        strcpy(t.category, FIXED_CATEGORIES[opt - 1]);
+    }
+
 
     printf("Enter description (no commas): ");
     scanf(" %49[^\n]", t.des);
@@ -154,6 +183,27 @@ void showReportsUI() {
     printf("Total expenses in category '%s': %.2f\n", category, total);
 }
 
+void showCategoryDistributionUI() {
+    double totalExpense = getTotalExpense();
+    if (totalExpense == 0) {
+        printf("\nNo expense data available.\n");
+        return;
+    }
+
+    printf("\n------ Expense Distribution ------\n");
+    printf("Category        | Amount     | Percent\n");
+    printf("--------------------------------------\n");
+
+    for(int i = 0; i < CATEGORY_COUNT; i++) {
+        double catAmt = getCategoryTotal((char*)FIXED_CATEGORIES[i]);
+        double pct = (catAmt / totalExpense) * 100.0;
+        printf("%-15s | %9.2f | %6.2f%%\n",
+               FIXED_CATEGORIES[i], catAmt, pct);
+    }
+    printf("--------------------------------------\n");
+}
+
+
 void runMainMenu(User currentUser) {
     int choice;
     do {
@@ -179,6 +229,10 @@ void runMainMenu(User currentUser) {
             case 6:
                 showReportsUI();
                 break;
+            case 7:
+                showCategoryDistributionUI();
+                break;
+
             case 0:
                 printf("Logging out %s. Goodbye!\n", currentUser.username);
                 break;
