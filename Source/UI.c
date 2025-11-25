@@ -6,7 +6,7 @@
 #include "Transactions.h"
 #include "Limits.h"
 #include "Reports.h"
-#include "Utils.h"
+#include "Utils.h" 
 #include "Storage.h"
 
 /* ---------- FIXED CATEGORIES (UPDATED) ---------- */
@@ -80,6 +80,7 @@ void showAddTransactionForm() {
         else
             strcpy(t.category, EXPENSE_CATEGORIES[opt - 1]);
     }
+    
 
     // 3. Get Amount
     printf("Amount: ");
@@ -171,6 +172,25 @@ void showSummary() {
         printf("Net Balance:    " COLOR_RED   "%.2f\n" COLOR_RESET, balance);
 }
 
+void showCategoryDistribution() {
+    printHeader("CATEGORY-WISE EXPENSE DISTRIBUTION");
+
+    printf(COLOR_CYAN "%-20s | %-10s\n" COLOR_RESET, "Category", "Spent");
+    printf("-------------------------------------------\n");
+
+    for (int i = 0; i < EXP_CAT_COUNT; i++) {
+        double spent = getCategoryTotal((char*)EXPENSE_CATEGORIES[i]);
+
+        if (spent > 0) {
+            printf("%-20s | " COLOR_RED "%.2f" COLOR_RESET "\n",
+                   EXPENSE_CATEGORIES[i], spent);
+        }
+    }
+
+    printf("-------------------------------------------\n");
+}
+
+
 void showBudgetMenu() {
     printHeader("MANAGE BUDGETS");
     char category[30];
@@ -195,9 +215,10 @@ void runMainMenu() {
         printf("1. Add Transaction\n");
         printf("2. View History\n");
         printf("3. View Financial Report\n");
-        printf("4. Set Budget Limit\n");
-        printf("5. Exit\n");
-        printf("Enter Choice: ");
+        printf("4. Category-wise Expense Report\n");
+        printf("5. Set Budget Limit\n");
+        printf("6. Exit\n");
+
         
         if (scanf("%d", &choice) != 1) {
             // Fix infinite loop if user enters text instead of number
@@ -209,13 +230,14 @@ void runMainMenu() {
             case 1: showAddTransactionForm(); break;
             case 2: showAllTransactions(); break;
             case 3: showSummary(); break;
-            case 4: showBudgetMenu(); break;
-            case 5: 
+            case 4: showCategoryDistribution(); break;
+            case 5: showBudgetMenu(); break;
+            case 6:
                 saveAllData();
                 printf(COLOR_GREEN "Data saved. Exiting...\n" COLOR_RESET);
-                // Note: If you implemented Storage.c, call saveAllData() here!
                 return;
-            default: printf(COLOR_RED "Invalid Option\n" COLOR_RESET);
+            default:
+                printf(COLOR_RED "Invalid Option\n" COLOR_RESET);
         }
     }
 }
