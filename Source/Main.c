@@ -4,6 +4,7 @@
 
 #include "Finance.h"
 #include "UI.h"
+#include "Storage.h"
 
 #define USERS_FILE "users.txt"
 
@@ -98,7 +99,7 @@ int main() {
     int choice;
 
     printf("=====================================\n");
-    printf("      SIMPLE PERSONAL FINANCE APP    \n");
+    printf("       PERSONAL FINANCE TRACKER    \n");
     printf("=====================================\n");
 
     while (1) {
@@ -128,6 +129,7 @@ int main() {
     }
 
     // Logged-in user -> run UI
+    loadAllData();
     runMainMenu(currentUser);
 
     return 0;

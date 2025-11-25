@@ -16,17 +16,24 @@ static int count = 0;
 
 // --- ACTIONS ---
 
+/* Update inside Transactions.c */
+
 int addTransaction(Transaction t) {
     // 1. Check if full
     if (count >= MAX_TRANSACTIONS) return 0;
 
-    // 2. Check if Date is valid (using your Utils file)
+    // 2. Validate Date
     if (!isValidDate(t.date)) return 0; 
+
+    // --- FIX START: AUTO-INCREMENT ID ---
+    // We ignore whatever ID was sent and assign the next available number
+    t.id = count + 1; 
+    // --- FIX END ---
 
     // 3. Add to list
     list[count] = t;
     count++;
-    return 1; // Success
+    return 1;
 }
 
 int deleteTransaction(int id) {
