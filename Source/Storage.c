@@ -11,7 +11,8 @@ void setActiveUserStorage(int userId) {
 }
 
 void saveAllData() {
-    FILE *file = fopen(fileName, "w"); // "w" overwrites the file with new data
+    FILE *file = fopen(fileName, "w");
+ // "w" overwrites the file with new data
     if (file == NULL) {
         printf("Error: Could not save data!\n");
         return;
