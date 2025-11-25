@@ -359,7 +359,7 @@ void searchTransactions() {
     // ---------------------------
     else if (ch == 3) {
     int m;
-    printf("Enter month (1–12): ");
+    printf("Enter month (1-12): ");
     scanf("%d", &m);
 
     if (m < 1 || m > 12) {
