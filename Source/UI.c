@@ -81,9 +81,6 @@ void showAddTransactionForm() {
             strcpy(t.category, EXPENSE_CATEGORIES[opt - 1]);
     }
 
-    printf("Category (Food/Rent/Salary/etc): ");
-    scanf("%s", t.category); // Single word input
-
     // 3. Get Amount
     printf("Amount: ");
     scanf("%lf", &t.amount);
