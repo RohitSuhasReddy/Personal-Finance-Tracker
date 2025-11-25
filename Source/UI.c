@@ -138,6 +138,7 @@ void showAddTransactionForm() {
 }
 
 void showAllTransactions() {
+    sortTransactionsByDate();
     Transaction* list = getAllTransactions();
     int count = getTransactionCount();
 
@@ -263,6 +264,103 @@ void showBudgetMenu() {
     printf(COLOR_GREEN "\n[SUCCESS] Budget set for %s at %.2f\n" COLOR_RESET, category, limit);
 }
 
+void searchTransactions() {
+    printHeader("SEARCH TRANSACTIONS");
+
+    printf("Search by:\n");
+    printf("1. Category\n");
+    printf("2. Date\n");
+    printf("3. Description Keyword\n");
+    printf("4. Amount Range\n");
+    printf("Enter choice: ");
+
+    int ch;
+    scanf("%d", &ch);
+
+    Transaction* list = getAllTransactions();
+    int count = getTransactionCount();
+
+    int found = 0;
+
+    if (ch == 1) {
+        char cat[30];
+        printf("Enter category: ");
+        scanf("%s", cat);
+
+        for (int i = 0; i < count; i++) {
+            if (strcmp(list[i].category, cat) == 0) {
+                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+                       list[i].id,
+                       list[i].date.day, list[i].date.month, list[i].date.year,
+                       list[i].category,
+                       list[i].amount,
+                       list[i].des);
+                found = 1;
+            }
+        }
+    }
+    else if (ch == 2) {
+        int d, m, y;
+        printf("Enter Date (DD MM YYYY): ");
+        scanf("%d %d %d", &d, &m, &y);
+
+        for (int i = 0; i < count; i++) {
+            if (list[i].date.day == d &&
+                list[i].date.month == m &&
+                list[i].date.year == y) {
+
+                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+                       list[i].id,
+                       list[i].date.day, list[i].date.month, list[i].date.year,
+                       list[i].category,
+                       list[i].amount,
+                       list[i].des);
+                found = 1;
+            }
+        }
+    }
+    else if (ch == 3) {
+        char key[50];
+        printf("Enter keyword: ");
+        scanf(" %[^\n]s", key);
+
+        for (int i = 0; i < count; i++) {
+            if (strstr(list[i].des, key)) {
+                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+                       list[i].id,
+                       list[i].date.day, list[i].date.month, list[i].date.year,
+                       list[i].category,
+                       list[i].amount,
+                       list[i].des);
+                found = 1;
+            }
+        }
+    }
+    else if (ch == 4) {
+        double min, max;
+        printf("Enter min amount: ");
+        scanf("%lf", &min);
+        printf("Enter max amount: ");
+        scanf("%lf", &max);
+
+        for (int i = 0; i < count; i++) {
+            if (list[i].amount >= min && list[i].amount <= max) {
+                printf("%d | %02d-%02d-%04d | %s | %.2f | %s\n",
+                       list[i].id,
+                       list[i].date.day, list[i].date.month, list[i].date.year,
+                       list[i].category,
+                       list[i].amount,
+                       list[i].des);
+                found = 1;
+            }
+        }
+    }
+
+    if (!found)
+        printf(COLOR_YELLOW "No matching transactions found.\n" COLOR_RESET);
+}
+
+
 // --- MAIN MENU LOOP ---
 
 void runMainMenu() {
@@ -275,7 +373,8 @@ void runMainMenu() {
         printf("3. View Financial Report\n");
         printf("4. Category-wise Distribution\n");
         printf("5. Set Budget Limit\n");
-        printf("6. Exit\n");
+        printf("6. Search Transactions\n");
+        printf("7. Exit\n");
 
 
         
@@ -291,7 +390,8 @@ void runMainMenu() {
             case 3: showSummary(); break;
             case 4: showCategoryDistribution(); break;
             case 5: showBudgetMenu(); break;
-            case 6:
+            case 6: searchTransactions(); break;
+            case 7:
                 saveAllData();
                 printf(COLOR_GREEN "Data saved. Exiting...\n" COLOR_RESET);
                 return;
