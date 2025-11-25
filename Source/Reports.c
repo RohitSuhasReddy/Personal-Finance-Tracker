@@ -31,6 +31,23 @@ double getCategoryTotal(char* category) {
     return sum;
 }
 
+double getIncomeCategoryTotal(char* category) {
+    Transaction* list = getAllTransactions();
+    int count = getTransactionCount();
+
+    double sum = 0.0;
+
+    for (int i = 0; i < count; i++) {
+        if (strcmp(list[i].type, "INCOME") == 0) {
+            if (strcmp(list[i].category, category) == 0) {
+                sum += list[i].amount;
+            }
+        }
+    }
+    return sum;
+}
+
+
 // --- FUNCTION 2: Sort by Date (Bubble Sort) ---
 
 void sortTransactionsByDate() {

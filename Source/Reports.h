@@ -6,5 +6,7 @@
 
 double getCategoryTotal(char* category);
 void sortTransactionsByDate();
+double getIncomeCategoryTotal(char* category);
+
 
 #endif

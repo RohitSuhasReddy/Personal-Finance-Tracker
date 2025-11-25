@@ -9,6 +9,19 @@
 #include "Utils.h" 
 #include "Storage.h"
 
+
+typedef struct {
+    char category[30];
+    double amount;
+} CategoryTotal;
+
+int compareByAmountDesc(const void* a, const void* b) {
+    CategoryTotal* ca = (CategoryTotal*)a;
+    CategoryTotal* cb = (CategoryTotal*)b;
+    return (cb->amount > ca->amount) - (cb->amount < ca->amount);
+}
+
+
 /* ---------- FIXED CATEGORIES (UPDATED) ---------- */
 
 // Expense Categories
@@ -173,22 +186,67 @@ void showSummary() {
 }
 
 void showCategoryDistribution() {
-    printHeader("CATEGORY-WISE EXPENSE DISTRIBUTION");
+    printHeader("CATEGORY-WISE DISTRIBUTION");
 
-    printf(COLOR_CYAN "%-20s | %-10s\n" COLOR_RESET, "Category", "Spent");
-    printf("-------------------------------------------\n");
+    CategoryTotal arr[50];
+    int n = 0;
 
+    // Collect EXPENSE totals
     for (int i = 0; i < EXP_CAT_COUNT; i++) {
         double spent = getCategoryTotal((char*)EXPENSE_CATEGORIES[i]);
-
         if (spent > 0) {
-            printf("%-20s | " COLOR_RED "%.2f" COLOR_RESET "\n",
-                   EXPENSE_CATEGORIES[i], spent);
+            strcpy(arr[n].category, EXPENSE_CATEGORIES[i]);
+            arr[n].amount = spent;
+            n++;
         }
     }
 
-    printf("-------------------------------------------\n");
+    // Collect INCOME totals
+    for (int i = 0; i < INC_CAT_COUNT; i++) {
+        double earned = getIncomeCategoryTotal((char*)INCOME_CATEGORIES[i]);
+        if (earned > 0) {
+            strcpy(arr[n].category, INCOME_CATEGORIES[i]);
+            arr[n].amount = earned;
+            n++;
+        }
+    }
+
+    if (n == 0) {
+        printf(COLOR_YELLOW "No data available.\n" COLOR_RESET);
+        return;
+    }
+
+    // Sorting Option
+    printf("\nSort by:\n1. Highest Amount\n2. Alphabetical\nEnter choice: ");
+    int ch;
+    scanf("%d", &ch);
+
+    if (ch == 1) qsort(arr, n, sizeof(CategoryTotal), compareByAmountDesc);
+    else if (ch == 2) {
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (strcmp(arr[i].category, arr[j].category) > 0) {
+                    CategoryTotal temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+        }
+    }
+
+    // Display Table
+    printf("\n" COLOR_CYAN "%-20s | %-10s\n" COLOR_RESET, "Category", "Amount");
+    printf("----------------------------------------\n");
+
+    for (int i = 0; i < n; i++) {
+        char* color = strstr(arr[i].category, "Income") ? COLOR_GREEN : COLOR_RED;
+        printf("%-20s | %s%.2f%s\n",
+               arr[i].category, color, arr[i].amount, COLOR_RESET);
+    }
+
+    printf("----------------------------------------\n");
 }
+
 
 
 void showBudgetMenu() {
@@ -215,9 +273,10 @@ void runMainMenu() {
         printf("1. Add Transaction\n");
         printf("2. View History\n");
         printf("3. View Financial Report\n");
-        printf("4. Category-wise Expense Report\n");
+        printf("4. Category-wise Distribution\n");
         printf("5. Set Budget Limit\n");
         printf("6. Exit\n");
+
 
         
         if (scanf("%d", &choice) != 1) {
