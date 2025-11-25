@@ -40,7 +40,6 @@ void loadAllData() {
     Transaction t;
 
     while (1) {
-        // Try reading 8 fields first (NEW FORMAT)
         int fields = fscanf(file,
             "%d,%lf,%[^,],%[^,],%d,%d,%d,%[^\n]",
             &t.id,
@@ -57,11 +56,8 @@ void loadAllData() {
             addTransaction(t);
         }
         else if (fields == 7) {
-            // OLD FORMAT → Add empty description
             strcpy(t.des, "");
             addTransaction(t);
-
-            // eat newline
             int c;
             while ((c = fgetc(file)) != '\n' && c != EOF);
         }

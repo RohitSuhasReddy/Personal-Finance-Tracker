@@ -1,6 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
-#include "Finance.h" // Needs your struct Date
+#include "Finance.h"
 
 // Returns 1 if valid, 0 if invalid
 int isValidDate(Date d); 

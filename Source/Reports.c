@@ -1,18 +1,11 @@
-/*
- * File: reports.c
- * Purpose: Logic for calculating totals and sorting.
- */
-
 #include <stdio.h>
 #include <string.h>
 #include "reports.h"
 #include "transactions.h"
 #include "utils.h" 
-// Note: Finance.h is included inside transactions.h, so we are safe.
 
-// --- FUNCTION 1: Calculate Category Total ---
+// FUNCTION 1: Calculate Category Total
 
-/* REPLACE inside Reports.c */
 
 double getCategoryTotal(char* category) {
     Transaction* list = getAllTransactions();
@@ -21,7 +14,6 @@ double getCategoryTotal(char* category) {
     double sum = 0.0;
 
     for (int i = 0; i < count; i++) {
-        // REMOVED THE CHECK for "EXPENSE". 
         // Now it sums up anything that matches the category name.
         if (strcmp(list[i].category, category) == 0) {
             sum += list[i].amount;
@@ -33,14 +25,12 @@ double getCategoryTotal(char* category) {
 
 
 
-// --- FUNCTION 2: Sort by Date (Bubble Sort) ---
+//FUNCTION 2: Sort by Date (Bubble Sort)
 
 void sortTransactionsByDate() {
-    // FIX 2: Get access to the private array
     Transaction* list = getAllTransactions();
     int count = getTransactionCount();
     
-    // FIX 3: Declare the temporary variable for swapping
     Transaction temp;
 
     // Bubble Sort Algorithm

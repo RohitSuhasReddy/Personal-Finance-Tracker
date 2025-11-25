@@ -1,4 +1,3 @@
-/* UI.c */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +22,6 @@ int compareByAmountDesc(const void* a, const void* b) {
 }
 
 
-/* ---------- FIXED CATEGORIES (UPDATED) ---------- */
 
 // Expense Categories
 const char* EXPENSE_CATEGORIES[] = {
@@ -40,10 +38,9 @@ const char* INCOME_CATEGORIES[] = {
 int INC_CAT_COUNT = 6;
 
 
-// --- HELPER FUNCTIONS ---
+// HELPER FUNCTIONS
 
 void clearScreen() {
-    // Uses "cls" for Windows, "clear" for Mac/Linux
     #ifdef _WIN32
         system("cls");
     #else
@@ -52,10 +49,9 @@ void clearScreen() {
 }
 
 void printHeader(char* title) {
-    printf("\n"COLOR_PINK COLOR_BOLD "=== %s ===" COLOR_RESET "\n", title);
+    printf("\n"COLOR_PINK COLOR_BOLD "======= %s ======" COLOR_RESET "\n", title);
 }
 
-// --- FEATURE SCREENS ---
 
 void showAddTransactionForm() {
     Transaction t;
@@ -100,7 +96,7 @@ void showAddTransactionForm() {
     printf("Amount: ");
     scanf("%lf", &t.amount);
 
-    // 4. Get Description (Allows spaces)
+    // 4. Get Description
     printf("Description: ");
     // The space before % says "skip whitespace"
     scanf(" %[^\n]s", t.des); 
@@ -117,7 +113,7 @@ void showAddTransactionForm() {
         return;
     }
 
-    // B. Check Budget (Only for Expenses)
+    // B. Check Budget
     if (typeChoice == 2) {
         double currentSpent = getCategoryTotal(t.category);
         if (isOverBudget(t.category, currentSpent + t.amount)) {
@@ -129,7 +125,6 @@ void showAddTransactionForm() {
         }
     }
 
-    // C. Add to Backend
     if (addTransaction(t)) {
         saveAllData();
         printf(COLOR_GREEN "\n[SUCCESS] Transaction added successfully!\n" COLOR_RESET);
@@ -186,19 +181,6 @@ void showSummary() {
     else
         printf("Net Balance:    " COLOR_RED   "%.2f\n" COLOR_RESET, balance);
 }
-
-/* REPLACE inside UI.c */
-
-// Define struct for this report (Keep this at the top of the function or file)
-// Note: If you already have this struct definition at the top of UI.c, you don't need to repeat it.
-/*
-typedef struct {
-    char category[30];
-    double amount;
-    int isIncome; // 1 = Green, 0 = Red
-} CategoryTotal;
-*/
-
 
 
 void showCategoryDistribution() {
@@ -257,20 +239,20 @@ void showCategoryDistribution() {
 void showBudgetMenu() {
     printHeader("SET BUDGET LIMITS");
     
-    // --- 1. Display Categories (Numbered List) ---
+    // 1. Display Categories (Numbered List) 
     printf("\nSelect Expense Category to Limit:\n");
     for(int i = 0; i < EXP_CAT_COUNT; i++) {
         printf("%d. %s\n", i+1, EXPENSE_CATEGORIES[i]);
     }
 
-    // --- 2. Get User Selection ---
+    // 2. Get User Selection
     int opt;
     printf("Enter option: ");
     scanf("%d", &opt);
 
     char category[30];
 
-    // --- 3. Validate & Map Selection to String ---
+    // 3. Validate & Map Selection to String 
     if(opt < 1 || opt > EXP_CAT_COUNT) {
         printf(COLOR_RED "Invalid option. Defaulting to 'Other Expenses'.\n" COLOR_RESET);
         strcpy(category, "Other Expenses");
@@ -279,17 +261,17 @@ void showBudgetMenu() {
         strcpy(category, EXPENSE_CATEGORIES[opt - 1]);
     }
 
-    // --- 4. Get Limit Amount ---
+    // 4. Get Limit Amount 
     double limit;
     printf("Enter Max Limit Amount for '%s': ", category);
     scanf("%lf", &limit);
 
-    // --- 5. Save to Backend ---
+    // 5. Save to Backend 
     setBudget(category, limit);
     printf(COLOR_GREEN "\n[SUCCESS] Budget set for %s at %.2f\n" COLOR_RESET, category, limit);
 }
 
-/* REPLACE the searchTransactions function in UI.c with this */
+
 
 void searchTransactions() {
     printHeader("SEARCH TRANSACTIONS");
@@ -308,13 +290,13 @@ void searchTransactions() {
     int count = getTransactionCount();
     int found = 0;
 
-    // --- HELPER MACRO FOR TABLE HEADER ---
+    // HELPER MACRO FOR TABLE HEADER 
     #define PRINT_TABLE_HEADER() { \
         printf("\n" COLOR_CYAN "%-4s | %-12s | %-15s | %-10s | %s\n" COLOR_RESET, "ID", "Date", "Category", "Amount", "Description"); \
         printf("----------------------------------------------------------------------\n"); \
     }
 
-    // --- HELPER MACRO FOR COLORED ROW ---
+    // HELPER MACRO FOR COLORED ROW 
     #define PRINT_SEARCH_ROW(t) { \
         char* color = (strcmp(t.type, "INCOME") == 0) ? COLOR_GREEN : COLOR_RED; \
         printf("%-4d | %02d-%02d-%04d | %s%-15s%s | %s%-10.2f%s | %s\n", \
@@ -325,9 +307,9 @@ void searchTransactions() {
                t.des); \
     }
 
-    // ---------------------------
+    
     // 1. SEARCH BY CATEGORY
-    // ---------------------------
+    
     if (ch == 1) {
         printHeader("SEARCH BY CATEGORY");
         int idx = 1;
@@ -368,9 +350,7 @@ void searchTransactions() {
         }
     }
 
-    // ---------------------------
     // 2. SEARCH BY DATE
-    // ---------------------------
     else if (ch == 2) {
         int d, m, y;
         printf("Enter date (DD MM YYYY): ");
@@ -386,9 +366,7 @@ void searchTransactions() {
         }
     }
 
-    // ---------------------------
     // 3. SEARCH BY MONTH
-    // ---------------------------
     else if (ch == 3) {
         int m;
         printf("Enter month (1-12): ");
@@ -404,9 +382,7 @@ void searchTransactions() {
         }
     }
 
-    // ---------------------------
     // 4. SEARCH BY YEAR
-    // ---------------------------
     else if (ch == 4) {
         int y;
         printf("Enter year: ");
@@ -435,12 +411,12 @@ void searchTransactions() {
 }
 
 
-// --- MAIN MENU LOOP ---
+// MAIN MENU LOOP 
 
 void runMainMenu() {
     int choice;
     while(1) {
-        // clearScreen(); // Uncomment if you want screen to wipe every time
+        clearScreen();
         printf("\n" COLOR_BOLD "=== PERSONAL FINANCE TRACKER ===" COLOR_RESET "\n");
         printf("1. Add Transaction\n");
         printf("2. View History\n");
@@ -454,7 +430,6 @@ void runMainMenu() {
 
         
         if (scanf("%d", &choice) != 1) {
-            // Fix infinite loop if user enters text instead of number
             while(getchar() != '\n'); 
             continue;
         }

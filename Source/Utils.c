@@ -9,7 +9,6 @@ int isValidDate(Date d) {
 }
 
 int compareDates(Date d1, Date d2) {
-    // Shortcut logic: 
     // If years are different, return the difference
     if (d1.year != d2.year) return d1.year - d2.year;
     

@@ -1,13 +1,9 @@
-/* limits.h */
 #ifndef LIMITS_H
 #define LIMITS_H
 
-#include "Finance.h" // <--- This imports the Budget struct from Finance.h
+#include "Finance.h"
 
-// DO NOT define 'typedef struct { ... } Budget' here again.
-// It is already inside Finance.h
-
-// --- Function Prototypes ---
+// Function Prototypes
 
 // 1. Create or Update a limit
 void setBudget(char* category, double amount);

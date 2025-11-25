@@ -1,8 +1,3 @@
-/*
- * File: transactions.c
- * Purpose: Logic for storing and calculating money.
- */
-
 #include <stdio.h>
 #include <string.h>
 #include "transactions.h"
@@ -14,9 +9,8 @@
 static Transaction list[MAX_TRANSACTIONS];
 static int count = 0;
 
-// --- ACTIONS ---
+// ACTIONS
 
-/* Update inside Transactions.c */
 
 int addTransaction(Transaction t) {
     // 1. Check if full
@@ -25,10 +19,7 @@ int addTransaction(Transaction t) {
     // 2. Validate Date
     if (!isValidDate(t.date)) return 0; 
 
-    // --- FIX START: AUTO-INCREMENT ID ---
-    // We ignore whatever ID was sent and assign the next available number
     t.id = count + 1; 
-    // --- FIX END ---
 
     // 3. Add to list
     list[count] = t;
@@ -58,7 +49,7 @@ int deleteTransaction(int id) {
     return 1;
 }
 
-// --- GETTERS ---
+// GETTERS
 
 Transaction* getAllTransactions() {
     return list;
@@ -68,7 +59,7 @@ int getTransactionCount() {
     return count;
 }
 
-// --- MATH ---
+// MATH
 
 double getTotalIncome() {
     double total = 0.0;
@@ -94,7 +85,7 @@ double getCurrentBalance() {
     return getTotalIncome() - getTotalExpense();
 }
 
-// --- HELPER FOR STORAGE ---
+// HELPER FOR STORAGE
 
 void transactionToString(Transaction t, char* buffer) {
     // Formats data as CSV so Person 2 can write it to a text file easily

@@ -1,4 +1,3 @@
-/* Finance.h */
 #ifndef FINANCE_H
 #define FINANCE_H
 
@@ -17,15 +16,14 @@ typedef struct {
 // It MUST be named "Transaction" (Big T) to match Reports.c
 typedef struct {
     int id;
-    double amount;      // Renamed from 'amt' to match logic
+    double amount;     
     char type[15];      // "INCOME" or "EXPENSE"
     char category[20];  // "Food", etc.
     char des[50];       // Description
-    Date date;          // Uses the struct above, NOT a char array
+    Date date;          
 } Transaction;
 
 
-// 3. Define Limits (If you are using the Limits module)
 typedef struct {
     char category[30];
     double maxAmount;

@@ -1,8 +1,6 @@
-/* reports.h */
 #ifndef REPORTS_H
 #define REPORTS_H
-
-#include "Finance.h" // <--- This is the key line!
+#include "Finance.h"
 
 double getCategoryTotal(char* category);
 void sortTransactionsByDate();
