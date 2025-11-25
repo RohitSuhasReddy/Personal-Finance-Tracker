@@ -12,6 +12,7 @@
 #define COLOR_BLUE    "\x1b[34m"
 #define COLOR_CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
+#define COLOR_PINK    "\x1b[95m"
 #define COLOR_BOLD    "\x1b[1m"
 
 // --- FUNCTIONS ---

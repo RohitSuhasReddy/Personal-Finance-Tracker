@@ -52,7 +52,7 @@ void clearScreen() {
 }
 
 void printHeader(char* title) {
-    printf("\n" COLOR_BOLD "=== %s ===" COLOR_RESET "\n", title);
+    printf("\n"COLOR_PINK COLOR_BOLD "=== %s ===" COLOR_RESET "\n", title);
 }
 
 // --- FEATURE SCREENS ---
@@ -289,6 +289,8 @@ void showBudgetMenu() {
     printf(COLOR_GREEN "\n[SUCCESS] Budget set for %s at %.2f\n" COLOR_RESET, category, limit);
 }
 
+/* REPLACE the searchTransactions function in UI.c with this */
+
 void searchTransactions() {
     printHeader("SEARCH TRANSACTIONS");
 
@@ -306,14 +308,28 @@ void searchTransactions() {
     int count = getTransactionCount();
     int found = 0;
 
+    // --- HELPER MACRO FOR TABLE HEADER ---
+    #define PRINT_TABLE_HEADER() { \
+        printf("\n" COLOR_CYAN "%-4s | %-12s | %-15s | %-10s | %s\n" COLOR_RESET, "ID", "Date", "Category", "Amount", "Description"); \
+        printf("----------------------------------------------------------------------\n"); \
+    }
+
+    // --- HELPER MACRO FOR COLORED ROW ---
+    #define PRINT_SEARCH_ROW(t) { \
+        char* color = (strcmp(t.type, "INCOME") == 0) ? COLOR_GREEN : COLOR_RED; \
+        printf("%-4d | %02d-%02d-%04d | %s%-15s%s | %s%-10.2f%s | %s\n", \
+               t.id, \
+               t.date.day, t.date.month, t.date.year, \
+               color, t.category, COLOR_RESET, \
+               color, t.amount, COLOR_RESET, \
+               t.des); \
+    }
+
     // ---------------------------
     // 1. SEARCH BY CATEGORY
     // ---------------------------
     if (ch == 1) {
         printHeader("SEARCH BY CATEGORY");
-
-        printf("Select Category:\n");
-
         int idx = 1;
 
         printf("\n" COLOR_GREEN "Income Categories:" COLOR_RESET "\n");
@@ -324,13 +340,12 @@ void searchTransactions() {
         for (int i = 0; i < EXP_CAT_COUNT; i++)
             printf("%d. %s\n", idx++, EXPENSE_CATEGORIES[i]);
 
-        int totalOptions = INC_CAT_COUNT + EXP_CAT_COUNT;
-
         printf("\nEnter choice: ");
         int opt;
         scanf("%d", &opt);
 
         char selected[30];
+        int totalOptions = INC_CAT_COUNT + EXP_CAT_COUNT;
 
         if (opt <= 0 || opt > totalOptions) {
             printf(COLOR_RED "Invalid option.\n" COLOR_RESET);
@@ -342,94 +357,70 @@ void searchTransactions() {
         else
             strcpy(selected, EXPENSE_CATEGORIES[opt - INC_CAT_COUNT - 1]);
 
+        // Print Header Once
+        PRINT_TABLE_HEADER();
+
         for (int i = 0; i < count; i++) {
             if (strcmp(list[i].category, selected) == 0) {
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       list[i].id,
-                       list[i].date.day, list[i].date.month, list[i].date.year,
-                       list[i].category,
-                       list[i].amount,
-                       list[i].des);
+                PRINT_SEARCH_ROW(list[i]);
                 found = 1;
             }
         }
     }
 
     // ---------------------------
-    // 2. SEARCH BY FULL DATE (DD MM YYYY)
+    // 2. SEARCH BY DATE
     // ---------------------------
     else if (ch == 2) {
         int d, m, y;
         printf("Enter date (DD MM YYYY): ");
         scanf("%d %d %d", &d, &m, &y);
 
-        for (int i = 0; i < count; i++) {
-            if (list[i].date.day == d &&
-                list[i].date.month == m &&
-                list[i].date.year == y) {
+        PRINT_TABLE_HEADER();
 
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       list[i].id,
-                       list[i].date.day, list[i].date.month, list[i].date.year,
-                       list[i].category,
-                       list[i].amount,
-                       list[i].des);
+        for (int i = 0; i < count; i++) {
+            if (list[i].date.day == d && list[i].date.month == m && list[i].date.year == y) {
+                PRINT_SEARCH_ROW(list[i]);
                 found = 1;
             }
         }
     }
 
     // ---------------------------
-    // 3. SEARCH BY MONTH (MM)
+    // 3. SEARCH BY MONTH
     // ---------------------------
     else if (ch == 3) {
-    int m;
-    printf("Enter month (1-12): ");
-    scanf("%d", &m);
+        int m;
+        printf("Enter month (1-12): ");
+        scanf("%d", &m);
 
-    if (m < 1 || m > 12) {
-        printf(COLOR_RED "Invalid month.\n" COLOR_RESET);
-        return;
-    }
+        PRINT_TABLE_HEADER();
 
-    for (int i = 0; i < count; i++) {
-        if (list[i].date.month == m) {
-
-            printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                   list[i].id,
-                   list[i].date.day, list[i].date.month, list[i].date.year,
-                   list[i].category,
-                   list[i].amount,
-                   list[i].des);
-
-            found = 1;
+        for (int i = 0; i < count; i++) {
+            if (list[i].date.month == m) {
+                PRINT_SEARCH_ROW(list[i]);
+                found = 1;
+            }
         }
     }
-}
-
 
     // ---------------------------
-    // 4. SEARCH BY YEAR (YYYY)
+    // 4. SEARCH BY YEAR
     // ---------------------------
     else if (ch == 4) {
         int y;
         printf("Enter year: ");
         scanf("%d", &y);
 
+        PRINT_TABLE_HEADER();
+
         for (int i = 0; i < count; i++) {
             if (list[i].date.year == y) {
-
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       list[i].id,
-                       list[i].date.day, list[i].date.month, list[i].date.year,
-                       list[i].category,
-                       list[i].amount,
-                       list[i].des);
+                PRINT_SEARCH_ROW(list[i]);
                 found = 1;
             }
         }
     }
-
     else {
         printf(COLOR_RED "Invalid choice.\n" COLOR_RESET);
         return;
@@ -437,6 +428,10 @@ void searchTransactions() {
 
     if (!found)
         printf(COLOR_YELLOW "No matching transactions found.\n" COLOR_RESET);
+    
+    // Clean up macros
+    #undef PRINT_TABLE_HEADER
+    #undef PRINT_SEARCH_ROW
 }
 
 
