@@ -1,82 +1,107 @@
+/* Source/Transactions.c */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include "transactions.h"
-#include "utils.h" // For isValidDate()
+#include "Transactions.h"
+#include "Utils.h"
 
-#define MAX_TRANSACTIONS 1000
-
-// Private Memory
-static Transaction list[MAX_TRANSACTIONS];
+// Private Memory: HEAD pointer instead of Array
+static Node* head = NULL;
 static int count = 0;
 
-// ACTIONS
-
+// --- ACTIONS ---
 
 int addTransaction(Transaction t) {
-    // 1. Check if full
-    if (count >= MAX_TRANSACTIONS) return 0;
-
-    // 2. Validate Date
+    // 1. Validate Date
     if (!isValidDate(t.date)) return 0; 
 
+    // 2. Auto-increment ID
+    // Note: In a linked list, we can't just use 'count + 1' if we delete items, 
+    // but for simplicity, we will stick to the logic of the original code 
+    // or find the max ID. Here we stick to count + 1 to match your logic.
     t.id = count + 1; 
 
-    // 3. Add to list
-    list[count] = t;
+    // 3. Create New Node
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) return 0; // Memory full
+
+    newNode->data = t;
+    newNode->next = NULL;
+
+    // 4. Append to End of List
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        Node* current = head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+
     count++;
     return 1;
 }
 
 int deleteTransaction(int id) {
-    int index = -1;
-    
-    // Find the item
-    for (int i = 0; i < count; i++) {
-        if (list[i].id == id) {
-            index = i;
-            break;
-        }
+    Node *current = head;
+    Node *prev = NULL;
+
+    // Search for the node
+    while (current != NULL && current->data.id != id) {
+        prev = current;
+        current = current->next;
     }
 
-    if (index == -1) return 0; // Not found
+    if (current == NULL) return 0; // Not found
 
-    // Shift everything left to fill the gap
-    for (int i = index; i < count - 1; i++) {
-        list[i] = list[i + 1];
+    // Unlink the node
+    if (prev == NULL) {
+        // Deleting the head
+        head = current->next;
+    } else {
+        prev->next = current->next;
     }
-    
+
+    free(current); // Free memory
     count--;
     return 1;
 }
 
-// GETTERS
+// --- GETTERS ---
 
-Transaction* getAllTransactions() {
-    return list;
+Node* getAllTransactions() {
+    return head;
 }
 
 int getTransactionCount() {
     return count;
 }
 
-// MATH
+// --- MATH ---
 
 double getTotalIncome() {
     double total = 0.0;
-    for (int i = 0; i < count; i++) {
-        if (strcmp(list[i].type, "INCOME") == 0) {
-            total += list[i].amount;
+    Node* current = head;
+    
+    while (current != NULL) {
+        if (strcmp(current->data.type, "INCOME") == 0) {
+            total += current->data.amount;
         }
+        current = current->next;
     }
     return total;
 }
 
 double getTotalExpense() {
     double total = 0.0;
-    for (int i = 0; i < count; i++) {
-        if (strcmp(list[i].type, "EXPENSE") == 0) {
-            total += list[i].amount;
+    Node* current = head;
+    
+    while (current != NULL) {
+        if (strcmp(current->data.type, "EXPENSE") == 0) {
+            total += current->data.amount;
         }
+        current = current->next;
     }
     return total;
 }
@@ -85,12 +110,8 @@ double getCurrentBalance() {
     return getTotalIncome() - getTotalExpense();
 }
 
-// HELPER FOR STORAGE
-
 void transactionToString(Transaction t, char* buffer) {
-    // Formats data as CSV so Person 2 can write it to a text file easily
-    // Order: ID, Amount, Type, Category, Day, Month, Year
     sprintf(buffer, "%d,%.2f,%s,%s,%d,%d,%d,%s",
             t.id, t.amount, t.type, t.category, 
-            t.date.day, t.date.month, t.date.year,t.des);
+            t.date.day, t.date.month, t.date.year, t.des);
 }

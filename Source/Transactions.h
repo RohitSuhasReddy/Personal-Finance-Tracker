@@ -1,24 +1,30 @@
+/* Source/Transactions.h */
 #ifndef TRANSACTIONS_H
 #define TRANSACTIONS_H
 
-#include "Finance.h" 
+#include "Finance.h"
 
-// 1. Actions
-// Returns 1 if success, 0 if full or invalid date
+// NEW: Define the Linked List Node
+typedef struct Node {
+    Transaction data;
+    struct Node* next;
+} Node;
+
+// --- 1. Actions ---
 int addTransaction(Transaction t);
+int deleteTransaction(int id);
 
-
-// 2. Get Data
-Transaction* getAllTransactions();
+// --- 2. Get Data ---
+// CHANGED: Returns the head of the linked list instead of an array
+Node* getAllTransactions(); 
 int getTransactionCount();
 
-// 3. Math Helpers
+// --- 3. Math Helpers ---
 double getTotalIncome();
 double getTotalExpense();
 double getCurrentBalance();
 
-// 4. Helper for Storage (Person 2 needs this)
-// Converts a transaction into a string: "1,500,Food,INCOME"
+// --- 4. Helper for Storage ---
 void transactionToString(Transaction t, char* buffer);
 
 #endif

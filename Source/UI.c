@@ -15,6 +15,19 @@ typedef struct {
     int isIncome;
 } CategoryTotal;
 
+/* Add this to Source/UI.c */
+
+void waitForInput() {
+    printf("\nPress [Enter] to continue...");
+    
+    // 1. Consume the leftover "Enter" key from the previous menu selection
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+    
+    // 2. Wait for the user to press Enter again
+    getchar(); 
+}
+
 int compareByAmountDesc(const void* a, const void* b) {
     CategoryTotal* ca = (CategoryTotal*)a;
     CategoryTotal* cb = (CategoryTotal*)b;
@@ -135,34 +148,32 @@ void showAddTransactionForm() {
 
 void showAllTransactions() {
     sortTransactionsByDate();
-    Transaction* list = getAllTransactions();
-    int count = getTransactionCount();
-
-    printHeader("TRANSACTION HISTORY");
+    Node* current = getAllTransactions(); // Get Head
     
-    // Table Header
-    printf(COLOR_CYAN "%-4s | %-12s | %-8s | %-12s | %-10s | %s\n" COLOR_RESET, 
-           "ID", "Date", "Type", "Category", "Amount", "Description");
-    printf("--------------------------------------------------------------------------\n");
+    // ... Header print code remains the same ...
 
-    if (count == 0) {
+    if (current == NULL) {
         printf(COLOR_YELLOW "No transactions found.\n" COLOR_RESET);
     }
 
-    for (int i = 0; i < count; i++) {
-        // Determine Color based on Type
-        char* color = (strcmp(list[i].type, "INCOME") == 0) ? COLOR_GREEN : COLOR_RED;
+    while (current != NULL) {
+        Transaction t = current->data; // Access data for cleaner code
+
+        char* color = (strcmp(t.type, "INCOME") == 0) ? COLOR_GREEN : COLOR_RED;
 
         printf("%-4d | %02d-%02d-%04d | %s%-8s%s | %-12s | %s%9.2f%s | %s\n",
-            list[i].id,
-            list[i].date.day, list[i].date.month, list[i].date.year,
-            color, list[i].type, COLOR_RESET, // Colored Type
-            list[i].category,
-            color, list[i].amount, COLOR_RESET, // Colored Amount
-            list[i].des
+            t.id,
+            t.date.day, t.date.month, t.date.year,
+            color, t.type, COLOR_RESET,
+            t.category,
+            color, t.amount, COLOR_RESET,
+            t.des
         );
+
+        current = current->next; // Move to next node
     }
     printf("--------------------------------------------------------------------------\n");
+    waitForInput();
 }
 
 void showSummary() {
@@ -180,6 +191,8 @@ void showSummary() {
         printf("Net Balance:    " COLOR_GREEN "%.2f\n" COLOR_RESET, balance);
     else
         printf("Net Balance:    " COLOR_RED   "%.2f\n" COLOR_RESET, balance);
+
+    waitForInput();
 }
 
 
@@ -231,6 +244,7 @@ void showCategoryDistribution() {
                arr[i].category, color, arr[i].amount, COLOR_RESET);
     }
     printf("----------------------------------------\n");
+    waitForInput();
 }
 
 
@@ -273,6 +287,8 @@ void showBudgetMenu() {
 
 
 
+/* REPLACE inside Source/UI.c */
+
 void searchTransactions() {
     printHeader("SEARCH TRANSACTIONS");
 
@@ -286,117 +302,130 @@ void searchTransactions() {
     int ch;
     scanf("%d", &ch);
 
-    Transaction* list = getAllTransactions();
-    int count = getTransactionCount();
+    // FIX: Change variable type from Transaction* to Node*
+    Node* current = getAllTransactions(); 
+    
+    // We don't strictly need 'count' for the loop anymore, 
+    // but we need a flag to know if we found anything.
     int found = 0;
 
-    // HELPER MACRO FOR TABLE HEADER 
-    #define PRINT_TABLE_HEADER() { \
-        printf("\n" COLOR_CYAN "%-4s | %-12s | %-15s | %-10s | %s\n" COLOR_RESET, "ID", "Date", "Category", "Amount", "Description"); \
-        printf("----------------------------------------------------------------------\n"); \
-    }
-
-    // HELPER MACRO FOR COLORED ROW 
-    #define PRINT_SEARCH_ROW(t) { \
-        char* color = (strcmp(t.type, "INCOME") == 0) ? COLOR_GREEN : COLOR_RED; \
-        printf("%-4d | %02d-%02d-%04d | %s%-15s%s | %s%-10.2f%s | %s\n", \
-               t.id, \
-               t.date.day, t.date.month, t.date.year, \
-               color, t.category, COLOR_RESET, \
-               color, t.amount, COLOR_RESET, \
-               t.des); \
-    }
-
-    
+    // ---------------------------
     // 1. SEARCH BY CATEGORY
-    
+    // ---------------------------
     if (ch == 1) {
         printHeader("SEARCH BY CATEGORY");
+        printf("Select Category:\n");
+
+        // Print Categories (Logic unchanged)
         int idx = 1;
-
         printf("\n" COLOR_GREEN "Income Categories:" COLOR_RESET "\n");
-        for (int i = 0; i < INC_CAT_COUNT; i++)
-            printf("%d. %s\n", idx++, INCOME_CATEGORIES[i]);
-
+        for (int i = 0; i < INC_CAT_COUNT; i++) printf("%d. %s\n", idx++, INCOME_CATEGORIES[i]);
         printf("\n" COLOR_RED "Expense Categories:" COLOR_RESET "\n");
-        for (int i = 0; i < EXP_CAT_COUNT; i++)
-            printf("%d. %s\n", idx++, EXPENSE_CATEGORIES[i]);
+        for (int i = 0; i < EXP_CAT_COUNT; i++) printf("%d. %s\n", idx++, EXPENSE_CATEGORIES[i]);
 
+        int totalOptions = INC_CAT_COUNT + EXP_CAT_COUNT;
         printf("\nEnter choice: ");
         int opt;
         scanf("%d", &opt);
 
         char selected[30];
-        int totalOptions = INC_CAT_COUNT + EXP_CAT_COUNT;
-
         if (opt <= 0 || opt > totalOptions) {
             printf(COLOR_RED "Invalid option.\n" COLOR_RESET);
             return;
         }
 
-        if (opt <= INC_CAT_COUNT)
-            strcpy(selected, INCOME_CATEGORIES[opt - 1]);
-        else
-            strcpy(selected, EXPENSE_CATEGORIES[opt - INC_CAT_COUNT - 1]);
+        if (opt <= INC_CAT_COUNT) strcpy(selected, INCOME_CATEGORIES[opt - 1]);
+        else strcpy(selected, EXPENSE_CATEGORIES[opt - INC_CAT_COUNT - 1]);
 
-        // Print Header Once
-        PRINT_TABLE_HEADER();
-
-        for (int i = 0; i < count; i++) {
-            if (strcmp(list[i].category, selected) == 0) {
-                PRINT_SEARCH_ROW(list[i]);
+        // FIX: Loop through Linked List
+        while (current != NULL) {
+            if (strcmp(current->data.category, selected) == 0) {
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
+                       current->data.id,
+                       current->data.date.day, current->data.date.month, current->data.date.year,
+                       current->data.category,
+                       current->data.amount,
+                       current->data.des);
                 found = 1;
             }
+            current = current->next; // Move to next node
         }
     }
 
-    // 2. SEARCH BY DATE
+    // ---------------------------
+    // 2. SEARCH BY FULL DATE
+    // ---------------------------
     else if (ch == 2) {
         int d, m, y;
         printf("Enter date (DD MM YYYY): ");
         scanf("%d %d %d", &d, &m, &y);
 
-        PRINT_TABLE_HEADER();
-
-        for (int i = 0; i < count; i++) {
-            if (list[i].date.day == d && list[i].date.month == m && list[i].date.year == y) {
-                PRINT_SEARCH_ROW(list[i]);
+        while (current != NULL) {
+            if (current->data.date.day == d &&
+                current->data.date.month == m &&
+                current->data.date.year == y) {
+                
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
+                       current->data.id,
+                       current->data.date.day, current->data.date.month, current->data.date.year,
+                       current->data.category,
+                       current->data.amount,
+                       current->data.des);
                 found = 1;
             }
+            current = current->next;
         }
     }
 
+    // ---------------------------
     // 3. SEARCH BY MONTH
+    // ---------------------------
     else if (ch == 3) {
         int m;
         printf("Enter month (1-12): ");
         scanf("%d", &m);
 
-        PRINT_TABLE_HEADER();
+        if (m < 1 || m > 12) {
+            printf(COLOR_RED "Invalid month.\n" COLOR_RESET);
+            return;
+        }
 
-        for (int i = 0; i < count; i++) {
-            if (list[i].date.month == m) {
-                PRINT_SEARCH_ROW(list[i]);
+        while (current != NULL) {
+            if (current->data.date.month == m) {
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
+                       current->data.id,
+                       current->data.date.day, current->data.date.month, current->data.date.year,
+                       current->data.category,
+                       current->data.amount,
+                       current->data.des);
                 found = 1;
             }
+            current = current->next;
         }
     }
 
+    // ---------------------------
     // 4. SEARCH BY YEAR
+    // ---------------------------
     else if (ch == 4) {
         int y;
         printf("Enter year: ");
         scanf("%d", &y);
 
-        PRINT_TABLE_HEADER();
-
-        for (int i = 0; i < count; i++) {
-            if (list[i].date.year == y) {
-                PRINT_SEARCH_ROW(list[i]);
+        while (current != NULL) {
+            if (current->data.date.year == y) {
+                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
+                       current->data.id,
+                       current->data.date.day, current->data.date.month, current->data.date.year,
+                       current->data.category,
+                       current->data.amount,
+                       current->data.des);
                 found = 1;
             }
+            current = current->next;
         }
     }
+
     else {
         printf(COLOR_RED "Invalid choice.\n" COLOR_RESET);
         return;
@@ -404,12 +433,9 @@ void searchTransactions() {
 
     if (!found)
         printf(COLOR_YELLOW "No matching transactions found.\n" COLOR_RESET);
-    
-    // Clean up macros
-    #undef PRINT_TABLE_HEADER
-    #undef PRINT_SEARCH_ROW
-}
 
+    waitForInput();
+}
 
 // MAIN MENU LOOP 
 

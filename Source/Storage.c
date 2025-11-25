@@ -10,26 +10,34 @@ void setActiveUserStorage(int userId) {
     sprintf(fileName, "transactions_user%d.txt", userId);
 }
 
+/* Update inside Source/Storage.c */
+
 void saveAllData() {
-    FILE *file = fopen(fileName, "w");
- // "w" overwrites the file with new data
+    // 1. Open the file using the static 'fileName' variable
+    FILE *file = fopen(fileName, "w"); 
+    
     if (file == NULL) {
         printf("Error: Could not save data!\n");
         return;
     }
 
-    Transaction* list = getAllTransactions();
-    int count = getTransactionCount();
-    char buffer[200]; // temporary holder for the text
+    // 2. Get the head of the Linked List
+    Node* current = getAllTransactions(); 
+    char buffer[200]; 
 
-    for (int i = 0; i < count; i++) {
-        // Use the helper we wrote in Transactions.c
-        transactionToString(list[i], buffer);
+    // 3. Iterate through the list
+    while (current != NULL) {
+        // Convert the transaction data to a string
+        transactionToString(current->data, buffer);
         
-        // Write it to the file
+        // Write to file
         fprintf(file, "%s\n", buffer);
+        
+        // Move to the next node
+        current = current->next;
     }
 
+    // 4. Close the file
     fclose(file);
 }
 
