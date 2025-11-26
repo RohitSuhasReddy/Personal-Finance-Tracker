@@ -15,8 +15,6 @@ typedef struct {
     int isIncome;
 } CategoryTotal;
 
-/* Add this to Source/UI.c */
-
 void waitForInput() {
     printf("\nPress [Enter] to continue...");
     
@@ -24,7 +22,6 @@ void waitForInput() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
     
-    // 2. Wait for the user to press Enter again
     getchar(); 
 }
 
@@ -150,8 +147,6 @@ void showAllTransactions() {
     sortTransactionsByDate();
     Node* current = getAllTransactions(); // Get Head
     
-    // ... Header print code remains the same ...
-
     if (current == NULL) {
         printf(COLOR_YELLOW "No transactions found.\n" COLOR_RESET);
     }
@@ -237,7 +232,7 @@ void showCategoryDistribution() {
     printf("----------------------------------------\n");
 
     for (int i = 0; i < n; i++) {
-        // Use the isIncome flag to decide color
+        // Useing isIncome flag to decide color
         char* color = (arr[i].isIncome == 1) ? COLOR_GREEN : COLOR_RED;
         
         printf("%-20s | %s%.2f%s\n",
@@ -253,7 +248,7 @@ void showCategoryDistribution() {
 void showBudgetMenu() {
     printHeader("SET BUDGET LIMITS");
     
-    // 1. Display Categories (Numbered List) 
+    // 1. Display Categories 
     printf("\nSelect Expense Category to Limit:\n");
     for(int i = 0; i < EXP_CAT_COUNT; i++) {
         printf("%d. %s\n", i+1, EXPENSE_CATEGORIES[i]);
@@ -287,8 +282,6 @@ void showBudgetMenu() {
 
 
 
-/* REPLACE inside Source/UI.c */
-
 void searchTransactions() {
     printHeader("SEARCH TRANSACTIONS");
 
@@ -302,21 +295,18 @@ void searchTransactions() {
     int ch;
     scanf("%d", &ch);
 
-    // FIX: Change variable type from Transaction* to Node*
     Node* current = getAllTransactions(); 
     
-    // We don't strictly need 'count' for the loop anymore, 
-    // but we need a flag to know if we found anything.
     int found = 0;
 
-    // ---------------------------
+
     // 1. SEARCH BY CATEGORY
-    // ---------------------------
+
     if (ch == 1) {
         printHeader("SEARCH BY CATEGORY");
         printf("Select Category:\n");
 
-        // Print Categories (Logic unchanged)
+        // Print Categories 
         int idx = 1;
         printf("\n" COLOR_GREEN "Income Categories:" COLOR_RESET "\n");
         for (int i = 0; i < INC_CAT_COUNT; i++) printf("%d. %s\n", idx++, INCOME_CATEGORIES[i]);
@@ -337,7 +327,7 @@ void searchTransactions() {
         if (opt <= INC_CAT_COUNT) strcpy(selected, INCOME_CATEGORIES[opt - 1]);
         else strcpy(selected, EXPENSE_CATEGORIES[opt - INC_CAT_COUNT - 1]);
 
-        // FIX: Loop through Linked List
+        // Loop through Linked List
         while (current != NULL) {
             if (strcmp(current->data.category, selected) == 0) {
                 printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
@@ -352,9 +342,8 @@ void searchTransactions() {
         }
     }
 
-    // ---------------------------
     // 2. SEARCH BY FULL DATE
-    // ---------------------------
+
     else if (ch == 2) {
         int d, m, y;
         printf("Enter date (DD MM YYYY): ");
@@ -377,9 +366,9 @@ void searchTransactions() {
         }
     }
 
-    // ---------------------------
+
     // 3. SEARCH BY MONTH
-    // ---------------------------
+
     else if (ch == 3) {
         int m;
         printf("Enter month (1-12): ");
@@ -404,9 +393,8 @@ void searchTransactions() {
         }
     }
 
-    // ---------------------------
     // 4. SEARCH BY YEAR
-    // ---------------------------
+    
     else if (ch == 4) {
         int y;
         printf("Enter year: ");

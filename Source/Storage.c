@@ -10,8 +10,6 @@ void setActiveUserStorage(int userId) {
     sprintf(fileName, "transactions_user%d.txt", userId);
 }
 
-/* Update inside Source/Storage.c */
-
 void saveAllData() {
     // 1. Open the file using the static 'fileName' variable
     FILE *file = fopen(fileName, "w"); 

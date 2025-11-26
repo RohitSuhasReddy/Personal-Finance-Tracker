@@ -1,34 +1,27 @@
-/* Source/Transactions.c */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "Transactions.h"
 #include "Utils.h"
 
-// Private Memory: HEAD pointer instead of Array
 static Node* head = NULL;
 static int count = 0;
 
 // --- ACTIONS ---
 
 int addTransaction(Transaction t) {
-    // 1. Validate Date
+    // Validate Date
     if (!isValidDate(t.date)) return 0; 
-
-    // 2. Auto-increment ID
-    // Note: In a linked list, we can't just use 'count + 1' if we delete items, 
-    // but for simplicity, we will stick to the logic of the original code 
-    // or find the max ID. Here we stick to count + 1 to match your logic.
     t.id = count + 1; 
 
-    // 3. Create New Node
+    //Create New Node
     Node* newNode = (Node*)malloc(sizeof(Node));
     if (newNode == NULL) return 0; // Memory full
 
     newNode->data = t;
     newNode->next = NULL;
 
-    // 4. Append to End of List
+    //Append to End of List
     if (head == NULL) {
         head = newNode;
     } else {
@@ -68,7 +61,7 @@ int deleteTransaction(int id) {
     return 1;
 }
 
-// --- GETTERS ---
+//GETTERS
 
 Node* getAllTransactions() {
     return head;
@@ -78,7 +71,7 @@ int getTransactionCount() {
     return count;
 }
 
-// --- MATH ---
+// MATH 
 
 double getTotalIncome() {
     double total = 0.0;

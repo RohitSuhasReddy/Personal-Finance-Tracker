@@ -4,10 +4,7 @@
 #include "transactions.h"
 #include "utils.h" 
 
-// FUNCTION 1: Calculate Category Total
-
-
-// Inside Reports.c
+// Calculate Category Total
 
 double getCategoryTotal(char* category) {
     Node* current = getAllTransactions();
@@ -35,7 +32,7 @@ void sortTransactionsByDate() {
             if (current->next != NULL) {
                 if (compareDates(current->data.date, current->next->data.date) < 0) {
                     
-                    // SWAP DATA (easiest way)
+                    // SWAP DATA
                     Transaction temp = current->data;
                     current->data = current->next->data;
                     current->next->data = temp;
