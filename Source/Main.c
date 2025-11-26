@@ -99,7 +99,7 @@ int main() {
     int choice;
 
     printf("=====================================\n");
-    printf("       PERSONAL FINANCE TRACKER    \n");
+    printf(COLOR_PINK COLOR_BOLD"       PERSONAL FINANCE TRACKER    "COLOR_RESET"\n");
     printf("=====================================\n");
 
     while (1) {

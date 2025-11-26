@@ -18,7 +18,7 @@ typedef struct {
 /* Add this to Source/UI.c */
 
 void waitForInput() {
-    printf("\nPress [Enter] to continue...");
+    printf("\nPress [Enter] to return to MENU...");
     
     // 1. Consume the leftover "Enter" key from the previous menu selection
     int c;
@@ -149,8 +149,7 @@ void showAddTransactionForm() {
 void showAllTransactions() {
     sortTransactionsByDate();
     Node* current = getAllTransactions(); // Get Head
-    
-    // ... Header print code remains the same ...
+    printHeader("HISTORY of Transactions");
 
     if (current == NULL) {
         printf(COLOR_YELLOW "No transactions found.\n" COLOR_RESET);
@@ -287,8 +286,6 @@ void showBudgetMenu() {
 
 
 
-/* REPLACE inside Source/UI.c */
-
 void searchTransactions() {
     printHeader("SEARCH TRANSACTIONS");
 
@@ -302,21 +299,34 @@ void searchTransactions() {
     int ch;
     scanf("%d", &ch);
 
-    // FIX: Change variable type from Transaction* to Node*
     Node* current = getAllTransactions(); 
-    
-    // We don't strictly need 'count' for the loop anymore, 
-    // but we need a flag to know if we found anything.
     int found = 0;
+
+    // --- HELPER MACRO FOR PRINTING COLORED ROW ---
+    // This makes sure search results look just like the History view
+    #define PRINT_SEARCH_ROW(t) { \
+        char* color = (strcmp(t.type, "INCOME") == 0) ? COLOR_GREEN : COLOR_RED; \
+        printf("%-4d | %02d-%02d-%04d | %s%-8s%s | %-12s | %s%9.2f%s | %s\n", \
+            t.id, \
+            t.date.day, t.date.month, t.date.year, \
+            color, t.type, COLOR_RESET, \
+            t.category, \
+            color, t.amount, COLOR_RESET, \
+            t.des \
+        ); \
+    }
+
+    // --- HELPER MACRO FOR TABLE HEADER ---
+    #define PRINT_TABLE_HEADER() { \
+        printf("\n" COLOR_CYAN "%-4s | %-10s | %-8s | %-12s | %-9s | %s\n" COLOR_RESET, "ID", "Date", "Type", "Category", "Amount", "Description"); \
+        printf("--------------------------------------------------------------------------\n"); \
+    }
 
     // ---------------------------
     // 1. SEARCH BY CATEGORY
     // ---------------------------
     if (ch == 1) {
         printHeader("SEARCH BY CATEGORY");
-        printf("Select Category:\n");
-
-        // Print Categories (Logic unchanged)
         int idx = 1;
         printf("\n" COLOR_GREEN "Income Categories:" COLOR_RESET "\n");
         for (int i = 0; i < INC_CAT_COUNT; i++) printf("%d. %s\n", idx++, INCOME_CATEGORIES[i]);
@@ -337,18 +347,14 @@ void searchTransactions() {
         if (opt <= INC_CAT_COUNT) strcpy(selected, INCOME_CATEGORIES[opt - 1]);
         else strcpy(selected, EXPENSE_CATEGORIES[opt - INC_CAT_COUNT - 1]);
 
-        // FIX: Loop through Linked List
+        PRINT_TABLE_HEADER();
+
         while (current != NULL) {
             if (strcmp(current->data.category, selected) == 0) {
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       current->data.id,
-                       current->data.date.day, current->data.date.month, current->data.date.year,
-                       current->data.category,
-                       current->data.amount,
-                       current->data.des);
+                PRINT_SEARCH_ROW(current->data);
                 found = 1;
             }
-            current = current->next; // Move to next node
+            current = current->next;
         }
     }
 
@@ -360,17 +366,22 @@ void searchTransactions() {
         printf("Enter date (DD MM YYYY): ");
         scanf("%d %d %d", &d, &m, &y);
 
+        // --- FIX: CHECK IF DATE IS VALID ---
+        Date checkDate = {d, m, y};
+        if (!isValidDate(checkDate)) {
+            printf(COLOR_RED "\n[ERROR] Invalid Date entered! Please check days/months.\n" COLOR_RESET);
+            waitForInput();
+            return;
+        }
+
+        PRINT_TABLE_HEADER();
+
         while (current != NULL) {
             if (current->data.date.day == d &&
                 current->data.date.month == m &&
                 current->data.date.year == y) {
                 
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       current->data.id,
-                       current->data.date.day, current->data.date.month, current->data.date.year,
-                       current->data.category,
-                       current->data.amount,
-                       current->data.des);
+                PRINT_SEARCH_ROW(current->data);
                 found = 1;
             }
             current = current->next;
@@ -387,17 +398,15 @@ void searchTransactions() {
 
         if (m < 1 || m > 12) {
             printf(COLOR_RED "Invalid month.\n" COLOR_RESET);
+            waitForInput();
             return;
         }
 
+        PRINT_TABLE_HEADER();
+
         while (current != NULL) {
             if (current->data.date.month == m) {
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       current->data.id,
-                       current->data.date.day, current->data.date.month, current->data.date.year,
-                       current->data.category,
-                       current->data.amount,
-                       current->data.des);
+                PRINT_SEARCH_ROW(current->data);
                 found = 1;
             }
             current = current->next;
@@ -412,14 +421,11 @@ void searchTransactions() {
         printf("Enter year: ");
         scanf("%d", &y);
 
+        PRINT_TABLE_HEADER();
+
         while (current != NULL) {
             if (current->data.date.year == y) {
-                printf("%d | %02d-%02d-%04d | %-10s | %.2f | %s\n",
-                       current->data.id,
-                       current->data.date.day, current->data.date.month, current->data.date.year,
-                       current->data.category,
-                       current->data.amount,
-                       current->data.des);
+                PRINT_SEARCH_ROW(current->data);
                 found = 1;
             }
             current = current->next;
@@ -428,6 +434,7 @@ void searchTransactions() {
 
     else {
         printf(COLOR_RED "Invalid choice.\n" COLOR_RESET);
+        waitForInput();
         return;
     }
 
@@ -435,6 +442,10 @@ void searchTransactions() {
         printf(COLOR_YELLOW "No matching transactions found.\n" COLOR_RESET);
 
     waitForInput();
+    
+    // Clean up macros
+    #undef PRINT_SEARCH_ROW
+    #undef PRINT_TABLE_HEADER
 }
 
 // MAIN MENU LOOP 
@@ -442,8 +453,7 @@ void searchTransactions() {
 void runMainMenu() {
     int choice;
     while(1) {
-        clearScreen();
-        printf("\n" COLOR_BOLD "=== PERSONAL FINANCE TRACKER ===" COLOR_RESET "\n");
+        printf("\n" COLOR_PINK COLOR_BOLD "====== PERSONAL FINANCE TRACKER ======" COLOR_RESET "\n");
         printf("1. Add Transaction\n");
         printf("2. View History\n");
         printf("3. View Financial Report\n");
