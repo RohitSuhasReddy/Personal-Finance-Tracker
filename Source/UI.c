@@ -104,7 +104,17 @@ void showAddTransactionForm() {
 
     // 3. Get Amount
     printf("Amount: ");
-    scanf("%lf", &t.amount);
+    
+    // Check if scanf successfully read 1 number
+    if (scanf("%lf", &t.amount) != 1) {
+        printf(COLOR_RED "\n[ERROR] Invalid input! Please enter a numeric amount.\n" COLOR_RESET);
+        
+        // CLEAR THE BUFFER: Eat up the bad characters (like "jk") until a newline
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF);
+        
+        return; // Cancel the transaction
+    }
 
     // 4. Get Description
     printf("Description: ");
