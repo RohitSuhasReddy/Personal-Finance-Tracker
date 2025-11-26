@@ -3,8 +3,6 @@
 
 #include "Finance.h"
 
-// Function Prototypes
-
 // 1. Create or Update a limit
 void setBudget(char* category, double amount);
 
