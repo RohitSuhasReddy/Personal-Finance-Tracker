@@ -7,7 +7,7 @@
 static Node* head = NULL;
 static int count = 0;
 
-// --- ACTIONS ---
+// ACTIONS
 
 int addTransaction(Transaction t) {
     // Validate Date
