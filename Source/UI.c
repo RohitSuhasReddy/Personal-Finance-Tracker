@@ -70,9 +70,16 @@ void showAddTransactionForm() {
     // 1. Get Type
     printf("Type (1=INCOME, 2=EXPENSE): ");
     int typeChoice;
+    do{
     scanf("%d", &typeChoice);
+    if ((typeChoice != 1) || (typeChoice != 2)){
+        printf("Invalid choice");
+    }
     if (typeChoice == 1) strcpy(t.type, "INCOME");
-    else strcpy(t.type, "EXPENSE");
+    else {
+             printf(COLOR_RED "Invalid choice! Please enter 1 or 2.\n" COLOR_RESET);
+        }
+    } while (typeChoice != 1 && typeChoice != 2);
 
     // 2. Get Category
     int opt;
