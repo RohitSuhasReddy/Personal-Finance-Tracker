@@ -5,5 +5,4 @@
 double getCategoryTotal(char* category);
 void sortTransactionsByDate();
 
-
 #endif

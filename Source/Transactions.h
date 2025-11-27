@@ -10,7 +10,6 @@ typedef struct Node {
 
 // Actions
 int addTransaction(Transaction t);
-int deleteTransaction(int id);
 
 // Get Data
 Node* getAllTransactions(); 

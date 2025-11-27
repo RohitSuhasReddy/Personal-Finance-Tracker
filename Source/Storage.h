@@ -5,5 +5,4 @@ void saveAllData();
 void loadAllData();
 void setActiveUserStorage(int userId);
 
-
 #endif

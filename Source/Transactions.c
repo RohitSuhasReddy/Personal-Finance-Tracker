@@ -36,32 +36,7 @@ int addTransaction(Transaction t) {
     return 1;
 }
 
-int deleteTransaction(int id) {
-    Node *current = head;
-    Node *prev = NULL;
-
-    // Search for the node
-    while (current != NULL && current->data.id != id) {
-        prev = current;
-        current = current->next;
-    }
-
-    if (current == NULL) return 0; // Not found
-
-    // Unlink the node
-    if (prev == NULL) {
-        // Deleting the head
-        head = current->next;
-    } else {
-        prev->next = current->next;
-    }
-
-    free(current); // Free memory
-    count--;
-    return 1;
-}
-
-//GETTERS
+// GETTERS
 
 Node* getAllTransactions() {
     return head;
