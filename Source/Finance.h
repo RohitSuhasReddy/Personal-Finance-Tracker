@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 // 1. Define the Date struct
-// We need this so Utils.c can validate days/months
 typedef struct {
     int day;
     int month;
@@ -13,7 +12,6 @@ typedef struct {
 } Date;
 
 // 2. Define the Transaction struct
-// It MUST be named "Transaction" (Big T) to match Reports.c
 typedef struct {
     int id;
     double amount;     
